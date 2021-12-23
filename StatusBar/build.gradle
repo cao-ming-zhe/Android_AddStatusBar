@@ -1,0 +1,31 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.0.3"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            //方式1
+            //options.compilerArgs.add('-Xbootclasspath/p:app/libs/framework.jar')
+            //方式2
+            //options.compilerArgs.add('-Xbootclasspath/p:libs/framework.jar')
+            //方式3
+            options.compilerArgs.add('-Xbootclasspath/p:D:/Work/code/Android/Android_AddStatusBar/StatusBar/app/libs/framework.jar')
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

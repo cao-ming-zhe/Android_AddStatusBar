@@ -70,6 +70,12 @@ public final class InputManager {
     private static final int MSG_DEVICE_REMOVED = 2;
     private static final int MSG_DEVICE_CHANGED = 3;
 
+    public static final int SCREEN_TI_MODE = 0;
+    public static final int SCREEN_HB_MODE = 1;
+
+    public static final String ACTION_CURRENT_SCREEN_MODE_CHANGED =
+            "android.hardware.input.action.CURRENT_SCREEN_MODE_CHANGED";
+
     private static InputManager sInstance;
 
     private final IInputManager mIm;

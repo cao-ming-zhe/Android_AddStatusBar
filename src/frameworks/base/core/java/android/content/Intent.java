@@ -9303,6 +9303,15 @@ public class Intent implements Parcelable, Cloneable {
      */
     public static final String ACTION_MANAGE_APP_DETAILED_PERMISSIONS =
             "android.intent.action.MANAGE_APP_DETAILED_PERMISSIONS";
+
+
+    /**
+     * Broadcast Action: The current device's screen mode has changed.
+     *
+     */
+    @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
+    public static final String ACTION_SCREEN_MODE_CHANGED = "android.intent.action.SCREEN_MODE_CHANGE";
+
     ///@}
 
     /// M: Mediatek added end

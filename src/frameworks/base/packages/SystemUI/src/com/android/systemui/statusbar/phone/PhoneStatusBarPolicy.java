@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.hardware.display.WifiDisplayStatus;
+import android.hardware.input.InputManager;
 import android.media.AudioManager;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.os.Handler;
@@ -72,6 +73,7 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
     private final String mSlotRotate;
     private final String mSlotHeadset;
     private final String mSlotDataSaver;
+    private final String mSlotScreenMode;
     private final Context mContext;
     private final Handler mHandler = new Handler();
     private final CastController mCast;
@@ -129,7 +131,7 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         mSlotRotate = context.getString(com.android.internal.R.string.status_bar_rotate);
         mSlotHeadset = context.getString(com.android.internal.R.string.status_bar_headset);
         mSlotDataSaver = context.getString(com.android.internal.R.string.status_bar_data_saver);
-
+        mSlotScreenMode = context.getString(com.android.internal.R.string.status_bar_screen_mode);
         mRotationLockController.addRotationLockControllerCallback(this);
 
         // listen for broadcasts
@@ -146,6 +148,7 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         /// M: [Multi-User] Add user switched action for updating possible alarm icon.
         filter.addAction(Intent.ACTION_USER_SWITCHED);
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED);
+        filter.addAction(Intent.ACTION_SCREEN_MODE_CHANGED);
         mContext.registerReceiver(mIntentReceiver, filter, null, mHandler);
         /// M: [Multi-User] Register Alarm intent by user
         registerAlarmClockChanged(UserHandle.USER_OWNER, false);
@@ -200,6 +203,11 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         mIconController.setIcon(mSlotDataSaver, R.drawable.stat_sys_data_saver,
                 context.getString(R.string.accessibility_data_saver_on));
         mIconController.setIconVisibility(mSlotDataSaver, false);
+
+        // screen mode
+        mIconController.setIcon(mSlotScreenMode, R.drawable.stat_sys_ti_mode,"");
+        mIconController.setIconVisibility(mSlotScreenMode, false);
+
         mDataSaver.addListener(this);
     }
 
@@ -422,6 +430,18 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         }
     }
 
+    protected void updateScreenMode(Intent intent) {
+        int currentScreenMode = intent.getIntExtra(InputManager.ACTION_CURRENT_SCREEN_MODE_CHANGED,
+                InputManager.SCREEN_TI_MODE);
+        if (currentScreenMode == InputManager.SCREEN_TI_MODE) {
+            mIconController.setIcon(mSlotScreenMode, R.drawable.stat_sys_ti_mode,"");
+            mIconController.setIconVisibility(mSlotScreenMode, true);
+        } else {
+            mIconController.setIcon(mSlotScreenMode, R.drawable.stat_sys_hb_mode,"");
+            mIconController.setIconVisibility(mSlotScreenMode, true);
+        }
+    }
+
     private final SynchronousUserSwitchObserver mUserSwitchListener =
             new SynchronousUserSwitchObserver() {
                 @Override
@@ -566,6 +586,9 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
                 updateAlarm();
                 int newUserId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, -1);
                 registerAlarmClockChanged(newUserId, true);
+            }
+            else if (action.equals(Intent.ACTION_SCREEN_MODE_CHANGED)) {
+                updateScreenMode(intent);
             }
             /// M: @}
         }

@@ -19,6 +19,7 @@ package com.android.systemui.statusbar.phone;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -77,7 +78,8 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
 
     private BatteryMeterView mBatteryMeterView;
     private BatteryMeterView mBatteryMeterViewKeyguard;
-    private TextView mClock;
+    private ImageView mUserImageView;
+    private TextView mUserTextView, mClock;
 
     private int mIconSize;
     private int mIconHPadding;
@@ -134,6 +136,9 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
         mBatteryMeterView = (BatteryMeterView) statusBar.findViewById(R.id.battery);
         mBatteryMeterViewKeyguard = (BatteryMeterView) keyguardStatusBar.findViewById(R.id.battery);
         scaleBatteryMeterViews(context);
+
+        mUserImageView  = (ImageView) statusBar.findViewById(R.id.userImage);
+        mUserTextView   = (TextView) statusBar.findViewById(R.id.userTextView);
 
         mClock = (TextView) statusBar.findViewById(R.id.clock);
         mDarkModeIconColorSingleTone = context.getColor(R.color.dark_mode_icon_color_single_tone);
@@ -605,5 +610,26 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
                 mContext.getResources().getDimensionPixelSize(
                         R.dimen.status_bar_clock_end_padding),
                 0);
+    }
+
+    public void updateUser(String name, int level, int visibility){
+        switch (level){
+            case Intent.USER_ADMINISTRATOR:
+                mUserImageView.setImageIcon(Icon.createWithResource(mContext, R.drawable.stat_sys_administrator));
+                break;
+            case Intent.USER_DEVELOPER:
+                mUserImageView.setImageIcon(Icon.createWithResource(mContext, R.drawable.stat_sys_developer));
+                break;
+            case Intent.USER_OPERATOR:
+                mUserImageView.setImageIcon(Icon.createWithResource(mContext, R.drawable.stat_sys_operator));
+                break;
+            default:
+                mUserImageView.setImageIcon(Icon.createWithResource(mContext, R.drawable.stat_sys_administrator));
+                break;
+        }
+
+        mUserTextView.setText(name);
+        mUserImageView.setVisibility(visibility);
+        mUserTextView.setVisibility(visibility);
     }
 }

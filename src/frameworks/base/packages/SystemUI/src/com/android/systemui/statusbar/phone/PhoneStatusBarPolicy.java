@@ -37,6 +37,7 @@ import android.os.UserManager;
 import android.provider.Settings.Global;
 import android.telecom.TelecomManager;
 import android.util.Log;
+import android.view.View;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.telephony.IccCardConstants;
@@ -149,6 +150,7 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         filter.addAction(Intent.ACTION_USER_SWITCHED);
         filter.addAction(Intent.ACTION_MANAGED_PROFILE_REMOVED);
         filter.addAction(Intent.ACTION_SCREEN_MODE_CHANGED);
+        filter.addAction(Intent.ACTION_USER_CHANGED);
         mContext.registerReceiver(mIntentReceiver, filter, null, mHandler);
         /// M: [Multi-User] Register Alarm intent by user
         registerAlarmClockChanged(UserHandle.USER_OWNER, false);
@@ -206,7 +208,10 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
 
         // screen mode
         mIconController.setIcon(mSlotScreenMode, R.drawable.stat_sys_ti_mode,"");
-        mIconController.setIconVisibility(mSlotScreenMode, false);
+        mIconController.setIconVisibility(mSlotScreenMode, true);
+
+        //user
+        mIconController.updateUser("", 0 , View.INVISIBLE);
 
         mDataSaver.addListener(this);
     }
@@ -442,6 +447,13 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
         }
     }
 
+    protected void updateUser(Intent intent) {
+        String currentUserName = intent.getStringExtra(intent.ACTION_CURRENT_USER_NAME_CHANGED);
+        int currentLevel = intent.getIntExtra(intent.ACTION_CURRENT_USER_LEVEL_CHANGED, 0);
+        int visibility = intent.getIntExtra(intent.ACTION_CURRENT_USER_VISIBILITY_CHANGED, View.INVISIBLE);
+        mIconController.updateUser(currentUserName,currentLevel, visibility);
+    }
+
     private final SynchronousUserSwitchObserver mUserSwitchListener =
             new SynchronousUserSwitchObserver() {
                 @Override
@@ -590,6 +602,10 @@ public class PhoneStatusBarPolicy implements Callback, RotationLockController.Ro
             else if (action.equals(Intent.ACTION_SCREEN_MODE_CHANGED)) {
                 updateScreenMode(intent);
             }
+            else if (action.equals(Intent.ACTION_USER_CHANGED)) {
+                updateUser(intent);
+            }
+
             /// M: @}
         }
     };
